@@ -1,3 +1,83 @@
+// i18next initialization - must happen before DOM access
+function initializeI18next() {
+    return i18next.init({
+        lng: navigator.language.startsWith('ja') ? 'ja' : 'en',
+        fallbackLng: 'en',
+        resources: {
+            ja: {
+                translation: {
+                    pageTitle: 'Turf.js バッファ生成ツール',
+                    title: 'バッファ生成ツール',
+                    uploadBtn: '📤 CSVをアップロード (lat, lon)',
+                    noFileSelected: 'ファイルが選択されていません',
+                    loading: '読み込み中...',
+                    emptyDataError: 'エラー: データが空です',
+                    selectColumnsPrompt: '列を選択して「地図に描画」を押してください',
+                    parseError: 'エラー: 解析に失敗しました',
+                    latColLabel: '緯度 (Latitude) 列:',
+                    lonColLabel: '経度 (Longitude) 列:',
+                    applyMappingBtn: '地図に描画',
+                    bufferRadiusLabel: 'バッファ半径 (メートル)',
+                    generateBtn: 'バッファを生成',
+                    downloadGeoJSON: 'GeoJSONをダウンロード',
+                    downloadSVG: 'SVGをダウンロード',
+                    invalidCoordinatesError: '有効な座標データを読み取れませんでした。列の選択を確認してください。',
+                    pointsDrawn: '件のポイントを描画しました。',
+                    uploadFirst: '先にCSVファイルをアップロードしてください。',
+                    noValidPoints: '有効なポイントデータがありません。列の選択を確認してください。',
+                    invalidRadius: '有効なバッファ半径を入力してください。',
+                    generatingBuffer: 'バッファ生成中...',
+                    bufferComplete: 'バッファ生成完了 (全 ',
+                    bufferCompleteEnd: ' 件)',
+                    bufferWarning: '警告: バッファが生成されませんでした (結果が空です)',
+                    bufferError: 'エラー: バッファ生成に失敗しました (',
+                    bufferException: 'バッファ生成中にエラーが発生しました。\n',
+                    noVectorData: 'エクスポートするベクターデータがありません。'
+                }
+            },
+            en: {
+                translation: {
+                    pageTitle: 'Turf.js Buffer Generation Tool',
+                    title: 'Buffer Generation Tool',
+                    uploadBtn: '📤 Upload CSV (lat, lon)',
+                    noFileSelected: 'No file selected',
+                    loading: 'Loading...',
+                    emptyDataError: 'Error: Data is empty',
+                    selectColumnsPrompt: 'Select columns and click "Apply to Map"',
+                    parseError: 'Error: Failed to parse CSV',
+                    latColLabel: 'Latitude Column:',
+                    lonColLabel: 'Longitude Column:',
+                    applyMappingBtn: 'Apply to Map',
+                    bufferRadiusLabel: 'Buffer Radius (Meters)',
+                    generateBtn: 'Generate Buffer',
+                    downloadGeoJSON: 'Download GeoJSON',
+                    downloadSVG: 'Download SVG',
+                    invalidCoordinatesError: 'Could not read valid coordinate data. Please check column selection.',
+                    pointsDrawn: ' points drawn.',
+                    uploadFirst: 'Please upload a CSV file first.',
+                    noValidPoints: 'No valid point data. Please check column selection.',
+                    invalidRadius: 'Please enter a valid buffer radius.',
+                    generatingBuffer: 'Generating buffer...',
+                    bufferComplete: 'Buffer generation complete (Total: ',
+                    bufferCompleteEnd: ' features)',
+                    bufferWarning: 'Warning: No buffer was generated (empty result)',
+                    bufferError: 'Error: Buffer generation failed (',
+                    bufferException: 'An error occurred during buffer generation.\n',
+                    noVectorData: 'No vector data to export.'
+                }
+            }
+        }
+    });
+}
+
+// Initialize i18next and update HTML lang attribute
+function setupLanguage() {
+    return initializeI18next().then(() => {
+        document.documentElement.lang = i18next.language;
+        initializeUI();
+    });
+}
+
 // Initialize Map
 const map = L.map('map').setView([35.6895, 139.6917], 10); // Default to Tokyo
 
@@ -30,18 +110,33 @@ const downloadGeoJSONBtn = document.getElementById('downloadGeoJSON');
 const downloadSVGBtn = document.getElementById('downloadSVG');
 
 // Event Listeners
+uploadBtn.addEventListener('click', () => csvUpload.click());
 csvUpload.addEventListener('change', handleFileUpload);
 applyMappingBtn.addEventListener('click', processMappedData);
 generateBtn.addEventListener('click', generateBuffer);
 downloadGeoJSONBtn.addEventListener('click', downloadGeoJSON);
 downloadSVGBtn.addEventListener('click', downloadSVG);
 
+function initializeUI() {
+    document.getElementById('pageTitle').textContent = i18next.t('pageTitle');
+    document.getElementById('title').textContent = i18next.t('title');
+    uploadBtn.textContent = i18next.t('uploadBtn');
+    document.getElementById('fileName').textContent = i18next.t('noFileSelected');
+    document.getElementById('latColLabel').textContent = i18next.t('latColLabel');
+    document.getElementById('lonColLabel').textContent = i18next.t('lonColLabel');
+    applyMappingBtn.textContent = i18next.t('applyMappingBtn');
+    document.getElementById('bufferRadiusLabel').textContent = i18next.t('bufferRadiusLabel');
+    generateBtn.textContent = i18next.t('generateBtn');
+    downloadGeoJSONBtn.textContent = i18next.t('downloadGeoJSON');
+    downloadSVGBtn.textContent = i18next.t('downloadSVG');
+}
+
 function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     fileNameDisplay.textContent = file.name;
-    statusMessage.textContent = "読み込み中...";
+    statusMessage.textContent = i18next.t('loading');
     statusMessage.style.color = "#666";
     columnMappingDiv.style.display = 'none';
 
@@ -53,7 +148,7 @@ function handleFileUpload(event) {
             rawCSVData = results.data;
 
             if (rawCSVData.length === 0) {
-                statusMessage.textContent = "エラー: データが空です";
+                statusMessage.textContent = i18next.t('emptyDataError');
                 statusMessage.style.color = "#dc3545";
                 return;
             }
@@ -77,13 +172,13 @@ function handleFileUpload(event) {
             if (latKey && lonKey) {
                 processMappedData();
             } else {
-                statusMessage.textContent = "列を選択して「地図に描画」を押してください";
+                statusMessage.textContent = i18next.t('selectColumnsPrompt');
                 statusMessage.style.color = "#007bff";
             }
         },
         error: function (err) {
             console.error("CSV Parse Error:", err);
-            statusMessage.textContent = "エラー: 解析に失敗しました";
+            statusMessage.textContent = i18next.t('parseError');
             statusMessage.style.color = "#dc3545";
         }
     });
@@ -134,7 +229,7 @@ function processMappedData() {
     }).filter(f => f !== null);
 
     if (features.length === 0) {
-        alert("有効な座標データを読み取れませんでした。列の選択を確認してください。");
+        alert(i18next.t('invalidCoordinatesError'));
         return;
     }
 
@@ -163,30 +258,30 @@ function processMappedData() {
     const bbox = turf.bbox(uploadedPoints);
     map.fitBounds([[bbox[1], bbox[0]], [bbox[3], bbox[2]]]);
 
-    statusMessage.textContent = `${features.length} 件のポイントを描画しました。`;
+    statusMessage.textContent = `${features.length} ${i18next.t('pointsDrawn')}`;
     statusMessage.style.color = "#28a745";
 }
 
 function generateBuffer() {
     if (!uploadedPoints) {
-        alert("先にCSVファイルをアップロードしてください。");
+        alert(i18next.t('uploadFirst'));
         return;
     }
 
     if (uploadedPoints.features.length === 0) {
-        alert("有効なポイントデータがありません。列の選択を確認してください。");
+        alert(i18next.t('noValidPoints'));
         return;
     }
 
     const radius = parseFloat(bufferRadiusInput.value);
     if (isNaN(radius) || radius <= 0) {
-        alert("有効なバッファ半径を入力してください。");
+        alert(i18next.t('invalidRadius'));
         return;
     }
 
     // Generate Buffers
     try {
-        statusMessage.textContent = "バッファ生成中...";
+        statusMessage.textContent = i18next.t('generatingBuffer');
         statusMessage.style.color = "#666";
 
         // turf.buffer takes (geojson, radius, {units: '...'})
@@ -217,16 +312,17 @@ function generateBuffer() {
         downloadSVGBtn.disabled = false;
 
         if (!generatedBufferGeoJSON || generatedBufferGeoJSON.features.length === 0) {
-            statusMessage.innerHTML += "<br><span style='color:#dc3545'>警告: バッファが生成されませんでした (結果が空です)</span>";
+            statusMessage.innerHTML = i18next.t('bufferWarning');
+            statusMessage.style.color = "#dc3545";
         } else {
-            statusMessage.innerHTML = "バッファ生成完了 (全 " + generatedBufferGeoJSON.features.length + " 件)";
+            statusMessage.textContent = i18next.t('bufferComplete') + generatedBufferGeoJSON.features.length + i18next.t('bufferCompleteEnd');
             statusMessage.style.color = "#28a745";
         }
     } catch (err) {
         console.error("Buffer Generation Error:", err);
-        statusMessage.textContent = "エラー: バッファ生成に失敗しました (" + err.message + ")";
+        statusMessage.textContent = i18next.t('bufferError') + err.message + ")";
         statusMessage.style.color = "#dc3545";
-        alert("バッファ生成中にエラーが発生しました。\n" + err.message);
+        alert(i18next.t('bufferException') + err.message);
     }
 }
 
@@ -250,7 +346,7 @@ function downloadSVG() {
 
     const svg = document.querySelector('.leaflet-overlay-pane svg');
     if (!svg) {
-        alert("エクスポートするベクターデータがありません。");
+        alert(i18next.t('noVectorData'));
         return;
     }
 
@@ -280,3 +376,6 @@ function downloadSVG() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 }
+
+// Initialize language and UI
+setupLanguage();
