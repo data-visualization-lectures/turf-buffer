@@ -137,7 +137,7 @@ function handleFileUpload(event) {
 
     fileNameDisplay.textContent = file.name;
     statusMessage.textContent = i18next.t('loading');
-    statusMessage.style.color = "#666";
+    statusMessage.style.color = "#6b7280";
     columnMappingDiv.style.display = 'none';
 
     Papa.parse(file, {
@@ -149,7 +149,7 @@ function handleFileUpload(event) {
 
             if (rawCSVData.length === 0) {
                 statusMessage.textContent = i18next.t('emptyDataError');
-                statusMessage.style.color = "#dc3545";
+                statusMessage.style.color = "#ef4444";
                 return;
             }
 
@@ -173,13 +173,13 @@ function handleFileUpload(event) {
                 processMappedData();
             } else {
                 statusMessage.textContent = i18next.t('selectColumnsPrompt');
-                statusMessage.style.color = "#007bff";
+                statusMessage.style.color = "#0f6cbd";
             }
         },
         error: function (err) {
             console.error("CSV Parse Error:", err);
             statusMessage.textContent = i18next.t('parseError');
-            statusMessage.style.color = "#dc3545";
+            statusMessage.style.color = "#ef4444";
         }
     });
 }
@@ -259,7 +259,7 @@ function processMappedData() {
     map.fitBounds([[bbox[1], bbox[0]], [bbox[3], bbox[2]]]);
 
     statusMessage.textContent = `${features.length} ${i18next.t('pointsDrawn')}`;
-    statusMessage.style.color = "#28a745";
+    statusMessage.style.color = "#10b981";
 }
 
 function generateBuffer() {
@@ -282,7 +282,7 @@ function generateBuffer() {
     // Generate Buffers
     try {
         statusMessage.textContent = i18next.t('generatingBuffer');
-        statusMessage.style.color = "#666";
+        statusMessage.style.color = "#6b7280";
 
         // turf.buffer takes (geojson, radius, {units: '...'})
         generatedBufferGeoJSON = turf.buffer(uploadedPoints, radius, { units: 'meters' });
@@ -313,15 +313,15 @@ function generateBuffer() {
 
         if (!generatedBufferGeoJSON || generatedBufferGeoJSON.features.length === 0) {
             statusMessage.innerHTML = i18next.t('bufferWarning');
-            statusMessage.style.color = "#dc3545";
+            statusMessage.style.color = "#ef4444";
         } else {
             statusMessage.textContent = i18next.t('bufferComplete') + generatedBufferGeoJSON.features.length + i18next.t('bufferCompleteEnd');
-            statusMessage.style.color = "#28a745";
+            statusMessage.style.color = "#10b981";
         }
     } catch (err) {
         console.error("Buffer Generation Error:", err);
         statusMessage.textContent = i18next.t('bufferError') + err.message + ")";
-        statusMessage.style.color = "#dc3545";
+        statusMessage.style.color = "#ef4444";
         alert(i18next.t('bufferException') + err.message);
     }
 }
